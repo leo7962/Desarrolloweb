@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Triqui</title>
+
+    <script language="JavaScript">
+    <!-- Variable global -->
+    var jugando = true //con esta variable se empieza a jugar//
+    <!-- Creando la función comprobar la jugada -->
+    function ComprobarJugada(tablero, ficha) {
+      <!-- comprueba las posibilidades que tiene que hacer para ganar en una fila, columna o diagonal y devuelve la posición donde hay que colocar la ficha para hacerlo y -1 si no hay jugada -->
+      var x, y
+      for (x=0; x < 9; x +=3) {
+        //Comprobar las filas
+        if((tablero.elements[x].value == ficha) && (tablero.elements[x + 1].value == ficha))
+        if(tablero.elements[x+2].value == "")
+          return (x+2)
+        if ((tablero.elements[x].value == ficha) && (tablero.elements [x + 2].value == ficha))
+        if (tablero.elements[x + 1].value == "")
+          return (x+1)
+        if ((tablero.elements [x+1].value == ficha) && (tablero.elements[x + 2].value == ficha))
+        if (tablero.elements[x].value == "")
+        return (x)
+      }
+      for (var x = 0; x<3; x++) {
+        //Comprobar las columnas
+        if ((tablero.elements[x].value == ficha) && (tablero.elements[x + 3].value == ficha))
+        if (tablero.elements[x + 6].value == "")
+        return (x + 6)
+        if ((tablero.elements[x].value == ficha) && (tablero.elements[x + 6].value == ficha))
+        if (tablero.elements[x + 3].value == "")
+        return (x + 3)
+        if ((tablero.elements[x + 3].value == ficha) && (tablero.elements[x + 6].value == ficha))
+        if (tablero.elements[x].value == "")
+        return (x)
+      }
+      //comprobar las diagonales
+      if ((tablero.elements[2].value == ficha) && (tablero.elements[4].value == ficha) && (tablero.elements[6].value == ""))
+      return (6)
+      if ((tablero.elements[2].value == ficha) && (tablero.elements[4].value == "") && (tablero.elements[6].value == ficha))
+      return (4)
+      if ((tablero.elements[2].value == "") && (tablero.elements[4].value == ficha) && (tablero.elements[6].value == ficha))
+      return (2)
+      if ((tablero.elements[0].value == ficha) && (tablero.elements[4].value == ficha) && (tablero.elements[8].value == ""))
+      return (8)
+      if ((tablero.elements[0].value == ficha) && (tablero.elements[4].value == "") && (tablero.elements[8].value == ficha))
+      return (4)
+      if ((tablero.elements[0].value == "") && (tablero.elements[4].value == ficha) && (tablero.elements[8].value == ficha))
+      return (0)
+      return -1
+    }
+
+    //Función para la pareja HORIZONTAL
+    function ParejaHorizontal(tablero, ficha) {
+       //comprueba si es posible poner 2 en una fila, estando vacia la otra posicion.de esa misma fila y devuelve la fila que permite hacerlo, o -1 en caso contrario
+       var x, y
+       for(x = 0; x < 9; x += 3) {
+          //comprobar las filas
+          if ((tablero.elements[x].value == ficha) && (tablero.elements[x + 1].value == "") && (tablero.elements[x + 2].value == ""))
+          return (x)
+          if ((tablero.elements[x].value == "") && (tablero.elements[x + 1].value == ficha) && (tablero.elements[x + 2].value == ""))
+          return (x + 1)
+          if ((tablero.elements[x].value == "") && (tablero.elements[x + 1].value == "") && (tablero.elements[x + 2].value == ficha))
+          return (x + 2)
+       }
+       return -1
+    }
+    //Función para la pareja VERTICAL
+    function ParejaVertical(tablero,ficha,jugadaHtal){
+      //En esta función comprueba si es posible poner 2 en una columna, estando vacia la otra posición, si esa misma columna y teniendo en cuenta si esa posición ya es pareja horizontal, devuelve la columna que permite hacerlo si no es pareja horizontal, o -1 en caso contrario
+
+    var x, y
+    for(x = 0; x < 3; x++) {
+       //comprueba las columnas
+       if ((tablero.elements[x].value == ficha) && (tablero.elements[x + 3].value == "") && (tablero.elements[x + 6].value == ""))
+       if (x != jugadaHtal)
+          //si es pareja horizontal no interesa como vertical
+          return (x)
+       if ((tablero.elements[x].value == "") && (tablero.elements[x + 3].value == ficha) && (tablero.elements[x + 6].value == ""))
+       if ((x + 3) != jugadaHtal)
+       return (x + 3)
+       if ((tablero.elements[x].value == "") && (tablero.elements[x + 3].value == "") && (tablero.elements[x + 6].value == ficha))
+       if ((x + 6) != jugadaHtal)
+       return (x + 6)
+    }
+    return -1
+  }
+  //Función obtener posición
+  function ObtenPosicion(jugadaHtal, jugadaVcal){
+    //Buscar la posición que permita hacer la jugada vertical y la jugada horizontal a la vez, una vez conocidas la fila y la columna ahora pueden hacer parejas
+    var x, y, fila, columna;
+    var posicion = 0;
+    matriz = new Array(3)
+    for (x = 0; x < 3; x++) {
+       //crea un matriz que asigna posicion a fila y columna
+       matriz[x] = new Array(3)
+       for (y = 0; y < 3; y++) {
+          matriz[x][y] = posicion
+          posicion ++
+       }
+    }
+    for (x = 0; x < 3; x++) {
+       //busca la fila y la columna
+       for (y = 0; y < 3; y++) {
+          if (matriz[x][y] == jugadaHtal)
+             //encontro la fila
+          fila = x
+          if (matriz[x][y] == jugadaVcal)
+             //encontro la columna
+             columna = y
+       }
+    }
+    return (matriz[fila][columna])
+    //devuelve posicion jugada
+  }
+    //función juega el ordenador
+    function ponerO(tablero){
+      //Aquí el PC decide donde jugará
+      var jugada, jugadaHtal, jugadaVcal
+      //Juega el pc y gana
+      jugada = CompruebaJugada(tablero, "O")
+      if (Jugada != -1) {
+        tablero.elements[jugada].value = "O"
+        alert('¡Haz perdido contra la maquina!')
+        document.marcador.perdidas.value++
+        jugando = false
+        return 1
+      }
+      //aquí se define para que el jugador evite ganar contra el ordenador
+      jugada = CompruebaJugada(tablero, "X")
+      if (jugada != -1) {
+         tablero.elements[jugada].value = "O"
+         return 1
+      }
+      //ataca y gana a la siguiente
+      jugadaHtal = ParejaHorizontal(tablero, "O")
+      jugadaVcal = ParejaVertical(tablero, "O", jugadaHtal)
+      if ((jugadaHtal != -1) && (jugadaVcal != -1)) {
+         //puede poner 2 en fila y 2 en columna
+         if ((jugadaHtal != 4) || (jugadaVcal != 4)) {
+            //no es el centro
+            jugada = ObtenPosicion(jugadaHtal, jugadaVcal)
+            //obtiene donde debe poner
+            tablero.elements[jugada].value = "O"
+            return 1
+         }
+      }
+      //Juega la maquina y pone en vertical
+      if ((jugadaHtal != -1) && (jugadaVcal == -1)) {
+         if ((jugadaHtal != 2) && (jugadaHtal != 5) && (jugadaHtal != 8))
+            //esto es arbitrario
+            tablero.elements[jugadaHtal + 1].value = "O"
+         //pone a la derecha
+         else
+            tablero.elements[jugadaHtal - 1].value = "O"
+            //pone a la izquierda
+            return 1
+         }
+         //juega la maquina y pone en horizontal
+         if ((jugadaHtal == -1) && (jugadaVcal != -1)) {
+            if ((jugadaVcal != 6) && (jugadaVcal != 7) && (jugadaVcal != 8))
+               tablero.elements[jugadaVcal + 3].value = "O"
+            //pone abajo
+            else
+               tablero.elements[jugadaVcal - 3].value = "O"
+            //pone arriba
+            return 1
+      }
+      //ocupa el centro
+      if (tablero.elements[4].value == "") {
+         tablero.elements[4].value = "O"
+         return 1
+      }
+      //ocupa la primera que este libre
+      for (x = 0; x < 9; x++)
+      if (tablero.elements[x].value == "") {
+         tablero.elements[x].value = "O"
+         return 1
+      }
+      alert('Esto ha sido un empate.')
+      document.marcador.tablas.value++
+      jugando = false
+      return -1
+
+    }
+
+    //Función para colocar X
+    function PonerX(tablero, posicion) {
+       //comprueba primero que se esta jugando
+       if (jugando) {
+          if (tablero.elements[posicion].value != "")
+             //casilla no vacia
+             alert('Esta posición ya se encuentra ocupada.')
+          else {
+             //casilla vacia, puede poner
+             tablero.elements[posicion].value = "X"
+             //comprueba si ha ganado (A�ADIDO EN LA VERSION 2)
+             if ( CompruebaVictoria(tablero, "X") ) {
+                alert('Felicitaciones, ha ganado contra la maquina.')
+                document.marcador.ganadas.value++
+                jugando = false
+             } else
+                ponerO(tablero)
+          }
+       } else {
+          alert('Para comenzar una nueva partida\npulsa Juego nuevo.')
+       }
+    }
+
+    //Función para comprobar la VICTORIA
+
+    function CompruebaVictoria(tablero, ficha) {
+       //comprueba si ha ganado el jugador que juega con X
+       var x
+       for(x = 0; x < 9; x += 3) {
+          //comprueba las filas
+          if ((tablero.elements[x].value == ficha) && (tablero.elements[x + 1].value == ficha) && (tablero.elements[x + 2].value == ficha))
+          return true
+       }
+       for(x = 0; x < 3; x++) {
+          //comprueba las columnas
+          if ((tablero.elements[x].value == ficha) && (tablero.elements[x + 3].value == ficha) && (tablero.elements[x + 6].value == ficha))
+          return true
+       }
+       //comprueba las diagonales
+       if ((tablero.elements[2].value == ficha) && (tablero.elements[4].value == ficha) && (tablero.elements[6].value == ficha))
+          return true
+       if ((tablero.elements[0].value == ficha) && (tablero.elements[4].value == ficha) && (tablero.elements[8].value == ficha))
+          return true
+       return false
+    }
+
+      var jugando = true ;
+
+       function PintarX(whois) {
+          whois.value="X";     //formulario forma objeto num propiedad objeto//
+       }
+       function ponermarca(tablero, posicion) {
+          //comprueba primero que se esta jugando
+          if (jugando) {
+             if (tablero.elements[posicion].value != "")
+                //casilla no vacia
+                alert('Esa casilla ya está ocupada.')
+                //casilla vacia, puede poner
+                else {
+                tablero.elements[posicion].value = "X";
+               }
+           } else {
+             alert('Para comenzar una nueva partida\npulsa Iniciar Juego nuevo.')
+          }
+       }
+
+          //ayuda sobre el juego//
+          function apareceayuda(){
+           ayuda.style.visibility="visible";
+           return true;
+         }
+
+          function desapareceayuda(){
+            ayuda.style.visibility="hidden";
+            return true;
+           }
+         //-->
+    </script>
+  </head>
+  <body text="#00ff99" bgcolor="#3399ff">
+    <div Align="center"><hr width=350px></div>
+
+    <br>
+    </br>
+
+    <div Align= "center">
+
+    <form name="marcador">
+        <table border="4">
+        <tr>
+          <td>
+            Tablas:<input type="text" name="tablas" value="0" size="1" readonly>
+          </td>
+
+          <td>
+            Perdidas:<input type=text name=perdidas background=black color=red value=0 size=1 readonly>
+          </td>
+        <td>
+          Ganadas:<input type=text name=ganadas value=0 size=1  readonly>
+        </td>
+      </tr>
+      <td colspan="3">
+        <center>
+           <input type=reset value=Limpiar style="background: black; border=1px solid gold;color:white;font-weight:bold;">
+         </center>
+       </td>
+     </tr>
+     <br>
+   </br>
+
+ </form>
+</div>
+
+  <center>
+    <form name="tablero">
+      <table border="15" cellpadding="15" width=50>
+        <tr>
+          <td colspan="3">
+            <marquee>
+              <font color="#ffffff">
+                Buena &nbsp; Suerte &nbsp;  &nbsp;
+              </font>
+            </marquee>
+            <div Align="center">
+              <img src="img/triqui.png" alt="Imagen de triqui" width="250px" height="250px">
+            </div>
+
+          </td>
+        </tr>
+        <tr>
+          <td background-color="#ff9966">
+            <input type="text"  name="t1" value="" size=1   onfocus="PonerX(tablero,0)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+           </td>
+           <td background-color="#ff9966">
+            <input type="text" name="t2" value="" size=1  onfocus="PonerX(tablero,1)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+           </td>
+          <td background-color="#ff9966">
+            <input type="text" name="t3" value="" size=1  onfocus="PonerX(tablero,2)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+          </td>
+         </tr>
+
+         <tr>
+          <td background-color="#ff9966">
+           <input type="text" name="t4" value="" size=1  onfocus="PonerX(tablero,3)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+         </td>
+          <td background-color="#ff9966">
+           <input type="text" name="t5" value="" size=1  onfocus="PonerX(tablero,4)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+         </td>
+          <td background-color="#ff9966">
+           <input type="text" name="t6" value="" size=1  onfocus="PonerX(tablero,5)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+         </td>
+       </tr>
+         <tr>
+          <td background-color="#ff9966">
+           <input type="text"  name="t7" value="" size=1  onfocus="PonerX(tablero,6)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+         </td>
+          <td background-color="#ff9966">
+           <input type="text"  name="t8" value="" size=1  onfocus="PonerX(tablero,7)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+         </td>
+          <td background-color="#ff9966">
+           <input type="text"  name="t9" value="" size=1  onfocus="PonerX(tablero,8)" readonly style="background: #000066; border:0px solid gold;color:white;font-weight:bold;">
+         </td>
+       </tr>
+     </table>
+
+     <br>
+   </br>
+
+    <input type="reset" value="Iniciar Juego Nuevo" name=Juego onclick="jugando=true" style="background: black; border=1px solid gold;color:white;font-weight:bold;">
+    <input type="button" value="ayuda" onclick="apareceayuda();" readonly style="background: black; border=1px solid gold;color:white;font-weight:bold;">
+
+</center>
+</form>
+  <div id="ayuda" style="position:absolute; top:350px; left:550px; width:200px; height:200px; text-aling:justify; overflow:scroll; background-color:#000000;
+  visibility:hidden">
+  <center> <b><u>Reglas</u></b></center> <br>
+  <font color=white>
+    <div Align="Left">
+      1. El objetivo del juego es realizar con x una linea vertical horizontal o diagonal
+      <br>
+      2. Juega contra la maquina cuantas veces quieras
+ </div>
+</font>
+
+
+<input type="button" value="cerrar" onclick="desapareceayuda();" style="background:#000000; border=1px solid gold;color:white;font-weight:bold;">
+</div>
+
+  <br>
+
+</br>
+
+  </body>
+</html>
