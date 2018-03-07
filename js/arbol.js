@@ -65,7 +65,30 @@ remove: function (value) {
     if (v.current === this._root) {
 
     }else {
-      
+
     }
+  }
+},
+
+var childCount = (v.current.left !== null ? 1:0) + (v.current.right !== null ? 1:0);
+
+if (v.current === this._root){
+  switch (childCount) {
+    case 0:
+      this._root = null;
+      break;
+    case 1:
+      this._root = (v.current.right === null ? v.current.left : v.current.right)
+      break;
+    case 2:
+      replacement = this._root-left;
+
+      while (replacement.right !== null) {
+        replacementParent = replacement;
+        replacement = replacement.right;
+      }
+      break;
+    default:
+
   }
 }
